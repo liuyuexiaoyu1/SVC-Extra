@@ -6,8 +6,7 @@
   "description": "Integrates Channel-style TCP transport, NVIDIA Broadcast denoising, and path-traced reverb into Simple Voice Chat.",
   "authors": ["Liuyue"],
   "contact": {},
-  "license": "LGPL-3.0",
-  "icon": "assets/svc-extra/icon.png",
+  "license": "GPL-3.0",
   "environment": "*",
   "entrypoints": {
     "client": [

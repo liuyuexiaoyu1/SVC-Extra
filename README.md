@@ -10,7 +10,7 @@
 | **UDP** | SVC 原生 UDP 通信 (DatagramSocket) | SVC |
 | **TCP** | Netty + Minecraft Varint21 帧协议 + AES-GCM 加密 | Channel |
 
-通过在 `svc-extra-server.json` 中设置 `transport` 字段选择。
+通过在 `svc-extra.json` 中设置 `transport` 字段选择。
 - TCP 模式使用 Minecraft 原生的帧同步协议，适合高稳定性环境
 - UDP 模式保持 SVC 原生低延迟通信
 

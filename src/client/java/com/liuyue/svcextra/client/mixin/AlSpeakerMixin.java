@@ -69,19 +69,20 @@ public class AlSpeakerMixin {
             return;
         }
         if (audio == null || audio.length == 0) return;
-        float alpha = RayTracedReverb.isInLava() ? 0.095f : 0.045f;
+        float alpha = RayTracedReverb.isInLava() ? 0.095f : 0.025f;
         float a1 = 1f - alpha;
-        float[] s = FILTER_STATE.computeIfAbsent(audioChannelId, k -> new float[1]);
+        float[] s = FILTER_STATE.computeIfAbsent(audioChannelId, k -> new float[2]);
         for (int i = 0; i < audio.length; i++) {
             float x = audio[i] / 32768f;
+            // 去除直流偏移，防止状态累积饱和
+            x -= s[1] * 0.9995f;
+            s[1] = x;
             float y = alpha * x + a1 * s[0];
-            if (y > 1f) {
-                y = 1f - (y - 1f) / (y + 1f);  
-            } else if (y < -1f) {
-                y = -1f - (y + 1f) / (y - 1f); 
-            }
+            // 状态存未裁剪的值（自然衰减），输出用软限制
             s[0] = y;
-            audio[i] = (short) (y * 23170f); 
+            if (y > 1f) y = 1f - (y - 1f) / (y + 1f);
+            else if (y < -1f) y = -1f - (y + 1f) / (y - 1f);
+            audio[i] = (short) (y * 23170f);
         }
     }
     private void applyDopplerVelocity(Vec3 pos) {

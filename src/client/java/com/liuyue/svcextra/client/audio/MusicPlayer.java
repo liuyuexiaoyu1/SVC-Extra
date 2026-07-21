@@ -82,12 +82,18 @@ public class MusicPlayer {
         Vec3 earPos = target.getEyePosition();
         Vec3 listenerEar = mc.player.getEyePosition();
         float dist = mc.player.distanceTo(target);
-        AL11.alSource3f(currentTrack.source, AL_POSITION, (float) earPos.x, (float) earPos.y, (float) earPos.z);
+        // 始终用相对位置，避免世界坐标系随视角旋转导致左右颠倒
+        Vec3 relative = earPos.subtract(listenerEar);
+        AL11.alSourcei(currentTrack.source, AL_SOURCE_RELATIVE, AL_TRUE);
+        AL11.alSource3f(currentTrack.source, AL_POSITION, (float) relative.x, (float) relative.y, (float) relative.z);
+        boolean isSelf = currentTrack.playerId.equals(mc.player.getUUID());
         if (SvcExtra.CONFIG.client.rayTraceAudio) {
             AL11.alSource3i(currentTrack.source, EXTEfx.AL_AUXILIARY_SEND_FILTER,
                     RayTracedReverb.getAuxSlot(), 0, EXTEfx.AL_FILTER_NULL);
-            Vec3 vel = PlayerVelocityTracker.getVelocity(currentTrack.playerId);
-            AL11.alSource3f(currentTrack.source, AL_VELOCITY, (float) vel.x, (float) vel.y, (float) vel.z);
+            if (!isSelf) {
+                Vec3 vel = PlayerVelocityTracker.getVelocity(currentTrack.playerId);
+                AL11.alSource3f(currentTrack.source, AL_VELOCITY, (float) vel.x, (float) vel.y, (float) vel.z);
+            }
             float gain = computeGain(dist, earPos, target, listenerEar) * currentTrack.volume;
             AL11.alSourcef(currentTrack.source, AL_GAIN, gain);
         } else {
@@ -112,7 +118,7 @@ public class MusicPlayer {
         Vec3 look = srcPlayer.getLookAngle();
         Vec3 toLis = earPos.subtract(srcPos).normalize();
         float dot = (float) look.dot(toLis);
-        float rawDir = 0.2f + 0.8f * Math.max(0f, dot);
+        float rawDir = 0.7f + 0.3f * Math.max(0f, dot);
         smoothDir += (rawDir - smoothDir) * 0.15f;
         g *= smoothDir;
         if (dist > 2f) {
@@ -138,9 +144,9 @@ public class MusicPlayer {
         return 0;
     }
     private static final float[][] XM_GAIN = {
-        { 1f, 0.12f, 0.20f },
-        { 0.12f, 1f, 0.35f },
-        { 0.20f, 0.35f, 1f },
+        { 1f, 0.06f, 0.15f },
+        { 0.06f, 1f, 0.30f },
+        { 0.15f, 0.30f, 1f },
     };
     private static DecodeResult decodeToPcm(Path path) throws Exception {
         String n = path.getFileName().toString().toLowerCase();

@@ -4,9 +4,13 @@ import com.liuyue.svcextra.client.audio.rt.HitPoint;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -66,6 +70,11 @@ public class RayTracedReverb {
         updateReflectionPan(mc);
     }
     public static void clear() { HIT_POINTS.clear(); debugRays.clear(); }
+    public static void disable() {
+        clear();
+        if (reverbEffect != -1) { alDeleteEffects(reverbEffect); reverbEffect = -1; }
+        if (auxSlot != -1) { alDeleteAuxiliaryEffectSlots(auxSlot); auxSlot = -1; }
+    }
     public static boolean isUnderwater() { return inWater || inLava; }
     public static boolean isInWater() { return inWater; }
     public static boolean isInLava() { return inLava; }
@@ -115,13 +124,13 @@ public class RayTracedReverb {
         density = (float) Math.min(1, Math.sqrt(sqDiff / n) / (maxDist / 2f) + (inWater ? 0.6f : 0));
         diffusion = (float) Math.min(1, meanRough);
         double airHf = Math.pow(0.99, meanJourney);
-        hfGain = (float) Math.min(2, Math.max(0, Math.sqrt(airHf * hfAvg) * ((inWater || inLava) ? 0.38f : 1)));
+        hfGain = (float) Math.min(2, Math.max(0, Math.sqrt(airHf * hfAvg) * (inLava ? 0.35f : (inWater ? 0.15f : 1))));
         double collisionCount = -6 / Math.log10(1 - meanAbs + 1e-10);
         double openSpace = (inWater || inLava) ? 1 : Math.min(1, (double) n / (rayCount * maxBounce * 2));
         double r = collisionCount * meanDist / 340 * openSpace;
-        rt60 = (float) Math.min(20, Math.max(0.1, (20 - 400 / (r + 20)) * ((inWater || inLava) ? 3.6f : 1)));
+        rt60 = (float) Math.min(20, Math.max(0.1, (20 - 400 / (r + 20)) * (inLava ? 3.6f : (inWater ? 6.0f : 1))));
         if (earlyWS > 0) {
-            earlyRefGain = (float) Math.min(3.16, Math.max(0, 2 * Math.sqrt(earlyGS / n) * openSpace * ((inWater || inLava) ? 1.2f : 1)));
+            earlyRefGain = (float) Math.min(6.0f, Math.max(0, 4 * Math.sqrt(earlyGS / n) * openSpace * ((inWater || inLava) ? 1.5f : 1)));
             earlyRefDelay = (float) (earlyDS / earlyWS / soundSpeed);
             earlyRefPos = new Vec3(earlyPA[0] / earlyWS, earlyPA[1] / earlyWS, earlyPA[2] / earlyWS);
         }
@@ -142,11 +151,11 @@ public class RayTracedReverb {
         }
         alEffectf(reverbEffect, AL_EAXREVERB_DENSITY, density);
         alEffectf(reverbEffect, AL_EAXREVERB_DIFFUSION, diffusion);
-        alEffectf(reverbEffect, AL_EAXREVERB_GAIN, (inLava ? 0.7f : 1));
+        alEffectf(reverbEffect, AL_EAXREVERB_GAIN, inLava ? 0.7f : (inWater ? 1.5f : 1));
         alEffectf(reverbEffect, AL_EAXREVERB_GAINHF, hfGain);
         alEffectf(reverbEffect, AL_EAXREVERB_GAINLF, 1);
         alEffectf(reverbEffect, AL_EAXREVERB_DECAY_TIME, rt60);
-        alEffectf(reverbEffect, AL_EAXREVERB_DECAY_HFRATIO, (inWater || inLava) ? 0.47f : hfGain);
+        alEffectf(reverbEffect, AL_EAXREVERB_DECAY_HFRATIO, inLava ? 0.4f : (inWater ? 0.2f : hfGain));
         alEffectf(reverbEffect, AL_EAXREVERB_DECAY_LFRATIO, 1);
         alEffectf(reverbEffect, AL_EAXREVERB_REFLECTIONS_GAIN, earlyRefGain);
         alEffectf(reverbEffect, AL_EAXREVERB_REFLECTIONS_DELAY, earlyRefDelay);
@@ -207,6 +216,52 @@ public class RayTracedReverb {
                     new Vec3(hit.getLocation().x, hit.getLocation().y, hit.getLocation().z),
                     debugColor
                 ));
+            }
+            if (!block.isSolid() && (block.getSoundType() == SoundType.WOOD || block.getSoundType() == SoundType.METAL)) {
+                float bleed = 0.3f;
+                Vec3 past = hit.getLocation().add(ray.x * bleed, ray.y * bleed, ray.z * bleed);
+                journey += bleed;
+                HIT_POINTS.add(new HitPoint(round, past, journey, bleed,
+                        0.3f, roughness * 0.5f, hf * 0.7f, hit.getDirection()));
+                pos = past;
+                if (showDebugRays) {
+                    debugRays.add(new Ray(hit.getLocation(), past, 0x40ffffff));
+                }
+                continue;
+            }
+            Vec3 hitPos3 = hit.getLocation();
+            AABB segBounds = new AABB(pos, hitPos3).inflate(0.5);
+            for (Entity e : mc.level.getEntities(null, segBounds)) {
+                if (e instanceof Player && !e.equals(mc.player) && e.getBoundingBox().clip(pos, hitPos3).isPresent()) {
+                    Vec3 entHit = e.getBoundingBox().clip(pos, hitPos3).get();
+                    float eDist = (float) entHit.distanceTo(pos);
+                    HIT_POINTS.add(new HitPoint(round, entHit, journey + eDist, eDist,
+                            0.7f, 0.6f, 0.3f, hit.getDirection()));
+                    if (showDebugRays) {
+                        debugRays.add(new Ray(pos, entHit, debugColor));
+                    }
+                }
+            }
+            boolean hitFluid = !fluid.isEmpty();
+            boolean earInFluid = inWater || inLava;
+            boolean refract = false;
+            if (hitFluid && !earInFluid) {
+                refract = true; // air->water/lava
+            }
+            if (!hitFluid && earInFluid && round > 1) {
+                refract = true; // water/lava->air (only after interior bounces)
+            }
+            if (refract && Math.random() < 0.3) {
+                double squeeze = hitFluid ? 1.33 : 0.75;
+                Vec3 refrEnd = hit.getLocation().add(ray.x * squeeze * 3, ray.y * squeeze * 3, ray.z * squeeze * 3);
+                float refrDist = (float) refrEnd.distanceTo(hit.getLocation());
+                float refrAbsorb = Math.min(0.98f, absorption + 0.5f);
+                journey += refrDist;
+                HIT_POINTS.add(new HitPoint(round + 1, refrEnd, journey, refrDist,
+                        refrAbsorb, 0.8f, 0.05f, hit.getDirection()));
+                if (showDebugRays) {
+                    debugRays.add(new Ray(hit.getLocation(), refrEnd, debugColor));
+                }
             }
             switch (hit.getDirection()) {
                 case UP, DOWN -> ray.mul(1, -1, 1);

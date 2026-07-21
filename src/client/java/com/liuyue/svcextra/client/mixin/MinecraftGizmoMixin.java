@@ -15,7 +15,7 @@ public class MinecraftGizmoMixin {
         var rays = RayTracedReverb.debugRays;
         if (rays.isEmpty()) return;
         for (var ray : rays) {
-            Gizmos.line(ray.from(), ray.to(), ray.color(), 1f);
+            Gizmos.line(ray.from(), ray.to(), ray.color(), 1f).setAlwaysOnTop();
         }
     }
 }

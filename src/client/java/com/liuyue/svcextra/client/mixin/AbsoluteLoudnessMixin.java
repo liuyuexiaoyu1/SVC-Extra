@@ -17,9 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Mixin(value = ALSpeakerBase.class, remap = false)
 public class AbsoluteLoudnessMixin {
     private static final float[][] XM_GAIN = {
-        { 1.0f, 0.12f, 0.20f },
-        { 0.12f, 1.0f, 0.35f },
-        { 0.20f, 0.35f, 1.0f  },
+        { 1.0f, 0.06f, 0.15f },
+        { 0.06f, 1.0f, 0.30f },
+        { 0.15f, 0.30f, 1.0f  },
     };
     private static final ConcurrentHashMap<UUID, float[]> DIR_SMOOTH = new ConcurrentHashMap<>();
     @Shadow
@@ -49,7 +49,7 @@ public class AbsoluteLoudnessMixin {
                         Vec3 lookDir = srcPlayer.getLookAngle();
                         Vec3 toListener = mc.player.getEyePosition().subtract(pos).normalize();
                         float dot = (float) lookDir.dot(toListener);
-                        float rawDir = 0.2f + 0.8f * Math.max(0, dot);
+                        float rawDir = 0.7f + 0.3f * Math.max(0, dot);
                         float[] smooth = DIR_SMOOTH.computeIfAbsent(audioChannelId, k -> new float[]{1.0f});
                         smooth[0] += (rawDir - smooth[0]) * 0.15f;
                         extraGain *= smooth[0];

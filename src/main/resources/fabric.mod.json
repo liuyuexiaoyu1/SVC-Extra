@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "svc-extra",
+  "version": "${version}",
+  "name": "SVC Extra",
+  "description": "Integrates Channel-style TCP transport, NVIDIA Broadcast denoising, and path-traced reverb into Simple Voice Chat.",
+  "authors": ["Liuyue"],
+  "contact": {},
+  "license": "LGPL-3.0",
+  "icon": "assets/svc-extra/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.liuyue.svcextra.client.SvcExtraClient"
+    ],
+    "main": [
+      "com.liuyue.svcextra.SvcExtra"
+    ]
+  },
+  "mixins": [
+    "svc-extra.mixins.json",
+    {
+      "config": "svc-extra.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "accessWidener": "svc-extra.accesswidener",
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}",
+    "voicechat": ">=2.5.0"
+  },
+  "suggests": {
+    "fabric-api": "*"
+  }
+}

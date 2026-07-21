@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.liuyue.svcextra.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "VoiceChatSettingsMixin",
+    "ClientConnectionMixin",
+    "MicProcessorMixin",
+    "AudioChannelMixin",
+    "AlSpeakerMixin",
+    "MinecraftGizmoMixin",
+    "AbsoluteLoudnessMixin",
+    "SoundManagerAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "refmap": "svc-extra-refmap.json"
+}

@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.liuyue.svcextra.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "McChannelMixin",
+    "ServerVoiceEventsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "refmap": "svc-extra-refmap.json"
+}

@@ -11,18 +11,15 @@ public class PacketUtil {
         PayloadTypeRegistry.clientboundPlay().register(VoicePayload.TYPE, VoicePayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(VoicePayload.TYPE, VoicePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(VoiceConfigPayload.TYPE, VoiceConfigPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(MusicPlayPayload.TYPE, MusicPlayPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(MusicStopPayload.TYPE, MusicStopPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(VoicePayload.TYPE, (payload, context) -> {
-            if (SvcExtra.CONFIG.server.transport != SvcExtraConfig.Transport.MC_CHANNEL) {
-                SvcExtra.LOGGER.debug("MC_CHANNEL packet ignored (transport={})", SvcExtra.CONFIG.server.transport);
-                return;
-            }
+            if (SvcExtra.CONFIG.server.transport != SvcExtraConfig.Transport.MC_CHANNEL) return;
             var svcServer = Voicechat.SERVER != null ? Voicechat.SERVER.getServer() : null;
             if (svcServer == null) return;
             var addr = InetSocketAddress.createUnresolved("mc",
                     Math.abs(context.player().getUUID().hashCode() % 65535));
             svcServer.addRawPacket(new RawUdpPacketImpl(payload.data(), addr, System.currentTimeMillis()));
-            SvcExtra.LOGGER.debug("MC_CHANNEL: packet from {} enqueued ({} bytes)",
-                    context.player().getName().getString(), payload.data().length);
         });
     }
 }

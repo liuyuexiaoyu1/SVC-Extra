@@ -22,8 +22,7 @@ public class ToleranceSlider extends DebouncedSlider {
     }
     @Override
     public void applyDebounced() {
-        int ms = MIN + (int) Math.round(value * (MAX - MIN));
-        SvcExtra.CONFIG.client.networkTolerance = ms;
+        SvcExtra.CONFIG.client.networkTolerance = MIN + (int) Math.round(value * (MAX - MIN));
         SvcExtra.CONFIG.save();
     }
 }

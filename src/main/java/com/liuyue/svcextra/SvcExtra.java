@@ -1,7 +1,9 @@
 package com.liuyue.svcextra;
+import com.liuyue.svcextra.command.MusicCommand;
 import com.liuyue.svcextra.config.SvcExtraConfig;
 import com.liuyue.svcextra.network.PacketUtil;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 public class SvcExtra implements ModInitializer {
@@ -12,5 +14,8 @@ public class SvcExtra implements ModInitializer {
     public void onInitialize() {
         CONFIG = SvcExtraConfig.load();
         PacketUtil.register();
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> {
+            MusicCommand.register(dispatcher);
+        });
     }
 }

@@ -28,7 +28,6 @@ import java.util.UUID;
 import static org.lwjgl.openal.AL10.*;
 public class MusicPlayer {
     private static MusicTrack currentTrack = null;
-    private static float smoothDir = 1.0f; 
     public static String play(Player target, String fileName, float volume) {
         stop();
         Path musicDir = FabricLoader.getInstance().getConfigDir().resolve("svc-extra").resolve("music");
@@ -65,62 +64,72 @@ public class MusicPlayer {
         SvcExtra.LOGGER.info("Playing '{}' on {}", fileName, target.getDisplayName().getString());
         return "§a播放 §e" + fileName + "§a 于 §e" + target.getDisplayName().getString();
     }
-    public static String stop() {
-        if (currentTrack == null) return "§e无播放中的音乐";
+    public static void stop() {
+        if (currentTrack == null) return;
         alSourceStop(currentTrack.source);
         AL11.alDeleteSources(currentTrack.source);
         AL11.alDeleteBuffers(currentTrack.buffer);
         currentTrack = null;
-        return "§a已停止";
     }
     public static void tick() {
         if (currentTrack == null) return;
         var mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
         Player target = mc.level.getPlayerByUUID(currentTrack.playerId);
-        if (target == null) return;
-        Vec3 earPos = target.getEyePosition();
+        if (target == null) { stop(); return; }
         Vec3 listenerEar = mc.player.getEyePosition();
-        float dist = mc.player.distanceTo(target);
-        // 始终用相对位置，避免世界坐标系随视角旋转导致左右颠倒
-        Vec3 relative = earPos.subtract(listenerEar);
+        AL11.alListener3f(AL_POSITION, (float) listenerEar.x, (float) listenerEar.y, (float) listenerEar.z);
+        Vec3 sourcePos = target.getEyePosition();
+        Vec3 delta = sourcePos.subtract(listenerEar);
+        Vec3 forward = mc.player.getLookAngle();
+        Vec3 up = mc.player.getUpVector(1.0f);
+        Vec3 right = forward.cross(up).normalize();
+        float localX = (float) delta.dot(right);
+        float localY = (float) delta.dot(up);
+        float localZ = (float) -delta.dot(forward);
         AL11.alSourcei(currentTrack.source, AL_SOURCE_RELATIVE, AL_TRUE);
-        AL11.alSource3f(currentTrack.source, AL_POSITION, (float) relative.x, (float) relative.y, (float) relative.z);
+        AL11.alSource3f(currentTrack.source, AL_POSITION, localX, localY, localZ);
+        float dist = (float) sourcePos.distanceTo(listenerEar);
         boolean isSelf = currentTrack.playerId.equals(mc.player.getUUID());
+
         if (SvcExtra.CONFIG.client.rayTraceAudio) {
             AL11.alSource3i(currentTrack.source, EXTEfx.AL_AUXILIARY_SEND_FILTER,
                     RayTracedReverb.getAuxSlot(), 0, EXTEfx.AL_FILTER_NULL);
             if (!isSelf) {
                 Vec3 vel = PlayerVelocityTracker.getVelocity(currentTrack.playerId);
                 AL11.alSource3f(currentTrack.source, AL_VELOCITY, (float) vel.x, (float) vel.y, (float) vel.z);
+            } else {
+                AL11.alSource3f(currentTrack.source, AL_VELOCITY, 0f, 0f, 0f);
             }
-            float gain = computeGain(dist, earPos, target, listenerEar) * currentTrack.volume;
-            AL11.alSourcef(currentTrack.source, AL_GAIN, gain);
+            float gain = computeGain(dist, sourcePos, listenerEar) * currentTrack.volume;
+            AL11.alSourcef(currentTrack.source, AL_GAIN, Math.max(0.001f, Math.min(1f, gain)));
+
         } else {
             AL11.alSource3i(currentTrack.source, EXTEfx.AL_AUXILIARY_SEND_FILTER,
                     EXTEfx.AL_EFFECTSLOT_NULL, 0, EXTEfx.AL_FILTER_NULL);
             AL11.alSource3f(currentTrack.source, AL_VELOCITY, 0f, 0f, 0f);
-            AL11.alSourcef(currentTrack.source, AL_GAIN, currentTrack.volume * Math.min(1f, 1f / (1f + dist * 0.04f)));
+            float simpleGain = currentTrack.volume * Math.min(1f, 100f / (100f + dist));
+            AL11.alSourcef(currentTrack.source, AL_GAIN, Math.max(0.001f, Math.min(1f, simpleGain)));
         }
     }
-    private static float computeGain(float dist, Vec3 srcPos, Player srcPlayer, Vec3 earPos) {
+    private static float computeGain(float dist, Vec3 srcPos, Vec3 earPos) {
         float g = 1f;
         var mc = Minecraft.getInstance();
-        g *= 1f / (1f + dist * 0.04f);
+        g *= 100f / (100f + dist);
+        if (dist < 3f) {
+            g *= 1f + (1f - dist / 3f) * 0.2f;
+        }
         float absStr = SvcExtra.CONFIG.client.absoluteLoudness;
         if (absStr > 0.001f) {
             float k = absStr * absStr * 0.05f;
             g *= Math.min(1f, (1f / (1f + k * dist * dist)) * 4f);
         }
-        int si = fluidOrd(mc.level.getBlockState(BlockPos.containing(srcPos)).getFluidState());
-        int di = fluidOrd(mc.level.getBlockState(BlockPos.containing(earPos)).getFluidState());
-        if (si != di) g *= XM_GAIN[si][di];
-        Vec3 look = srcPlayer.getLookAngle();
-        Vec3 toLis = earPos.subtract(srcPos).normalize();
-        float dot = (float) look.dot(toLis);
-        float rawDir = 0.7f + 0.3f * Math.max(0f, dot);
-        smoothDir += (rawDir - smoothDir) * 0.15f;
-        g *= smoothDir;
+        if (mc.level != null) {
+            int si = fluidOrd(mc.level.getBlockState(BlockPos.containing(srcPos)).getFluidState());
+            int di = fluidOrd(mc.level.getBlockState(BlockPos.containing(earPos)).getFluidState());
+            if (si != di) g *= XM_GAIN[si][di];
+        }
+        g *= 1.0f;
         if (dist > 2f) {
             Vec3 dir = earPos.subtract(srcPos).normalize();
             Vec3 origin = srcPos.add(dir.scale(0.5));
@@ -132,7 +141,8 @@ public class MusicPlayer {
                 if (p > 0.05f) g *= 1f - p * 0.5f;
             }
         }
-        return Math.max(0.001f, Math.min(1f, g));
+
+        return Math.max(0.001f, Math.min(1.2f, g));
     }
     private static int fluidOrd(net.minecraft.world.level.material.FluidState f) {
         if (!f.isEmpty()) {

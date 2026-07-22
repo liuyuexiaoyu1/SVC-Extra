@@ -2,6 +2,7 @@ package com.liuyue.svcextra.client.mixin;
 import com.liuyue.svcextra.SvcExtra;
 import com.liuyue.svcextra.client.audio.DuckingManager;
 import com.liuyue.svcextra.client.audio.PlayerVelocityTracker;
+import com.liuyue.svcextra.audio.WebRtcNative;
 import com.liuyue.svcextra.client.audio.RayTracedReverb;
 import de.maxhenkel.voicechat.voice.client.speaker.ALSpeakerBase;
 import net.minecraft.client.Minecraft;
@@ -39,6 +40,9 @@ public class AlSpeakerMixin {
     private void onWriteSync(short[] audio, float volume, Vec3 pos,
                              String whisper, float distance, CallbackInfo ci) {
         DuckingManager.markActive();
+        if (SvcExtra.CONFIG.client.echoCancel) {
+            WebRtcNative.pushReference(audio, 48000);
+        }
         applyReverbFx();
         if (SvcExtra.CONFIG.client.rayTraceAudio) {
             AL11.alDopplerFactor(1.2f);

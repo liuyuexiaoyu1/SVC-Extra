@@ -1,4 +1,5 @@
 package com.liuyue.svcextra.client.mixin;
+
 import com.liuyue.svcextra.client.gui.SvcExtraSettingsScreen;
 import de.maxhenkel.voicechat.gui.VoiceChatScreenBase;
 import de.maxhenkel.voicechat.gui.VoiceChatSettingsScreen;
@@ -10,11 +11,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 @Mixin(VoiceChatSettingsScreen.class)
 public class VoiceChatSettingsMixin extends VoiceChatScreenBase {
     protected VoiceChatSettingsMixin(Component title, int xSize, int ySize) {
         super(title, xSize, ySize);
     }
+
     @Unique
     private static final Component SVC_BTN = Component.literal("§6§lSVC Extra §r");
     @Inject(method = "init", at = @At("TAIL"), remap = false)

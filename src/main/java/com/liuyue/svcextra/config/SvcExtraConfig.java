@@ -16,6 +16,7 @@ public class SvcExtraConfig {
         public boolean autoGainControl = true;
         public boolean echoCancel = false;
         public float targetLevelDbfs = -5f;
+        public int rayTraceIntervalMs = 500;
         public float maxGain = 20f;
         public float duckingLevel = 0.3f;
         public int frameLengthMs = 20;

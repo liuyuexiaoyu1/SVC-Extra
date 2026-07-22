@@ -1,12 +1,12 @@
 package com.liuyue.svcextra.client.mixin;
+
 import com.liuyue.svcextra.SvcExtra;
-import de.maxhenkel.voicechat.VoicechatClient;
 import de.maxhenkel.voicechat.voice.client.AudioChannel;
 import de.maxhenkel.voicechat.voice.client.AudioPacketBuffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 @Mixin(AudioChannel.class)
 public class AudioChannelMixin {
     @Redirect(method = "<init>",

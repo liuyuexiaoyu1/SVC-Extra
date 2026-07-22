@@ -63,7 +63,8 @@ public class RayTracedReverb {
         FluidState fluid = mc.level.getBlockState(eyePos).getFluidState();
         inWater = !fluid.isEmpty() && fluid.getType().isSame(Fluids.WATER);
         inLava = !fluid.isEmpty() && fluid.getType().isSame(Fluids.LAVA);
-        if (now - lastUpdateMs > 500) {
+        int interval = Math.max(5, Math.min(3000, com.liuyue.svcextra.SvcExtra.CONFIG.client.rayTraceIntervalMs));
+        if (now - lastUpdateMs > interval) {
             lastUpdateMs = now;
             updateReverb(mc);
         }
@@ -89,7 +90,10 @@ public class RayTracedReverb {
         RAY_POOL.submit(() -> rays1.parallelStream().forEach(ray ->
             traceRay(mc, earPos, ray, 0x8000ff00)
         )).join();
-        if (HIT_POINTS.isEmpty()) return;
+        if (HIT_POINTS.isEmpty()) {
+            setDryEnvironment();
+            return;
+        }
         int n = HIT_POINTS.size();
         double journeySum = 0, distanceSum = 0, weightSum = 0;
         double roughnessW = 0, absorptionW = 0, hfW = 0;
@@ -151,7 +155,7 @@ public class RayTracedReverb {
         }
         alEffectf(reverbEffect, AL_EAXREVERB_DENSITY, density);
         alEffectf(reverbEffect, AL_EAXREVERB_DIFFUSION, diffusion);
-        alEffectf(reverbEffect, AL_EAXREVERB_GAIN, inLava ? 0.7f : (inWater ? 1.5f : 1));
+        alEffectf(reverbEffect, AL_EAXREVERB_GAIN, inLava ? 0.5f : (inWater ? 0.8f : 0.5f));
         alEffectf(reverbEffect, AL_EAXREVERB_GAINHF, hfGain);
         alEffectf(reverbEffect, AL_EAXREVERB_GAINLF, 1);
         alEffectf(reverbEffect, AL_EAXREVERB_DECAY_TIME, rt60);
@@ -167,6 +171,13 @@ public class RayTracedReverb {
         alEffectf(reverbEffect, AL_EAXREVERB_MODULATION_DEPTH, 0.025f);
         alAuxiliaryEffectSloti(auxSlot, AL_EFFECTSLOT_EFFECT, reverbEffect);
     }
+    private static void setDryEnvironment() {
+        density = 0f; diffusion = 0.5f; hfGain = 0.3f; rt60 = 0.1f;
+        earlyRefGain = 0f; earlyRefDelay = 0.007f;
+        lateRefGain = 0f; lateRefDelay = 0.01f;
+        echoTime = 0.075f; echoDepth = 0f;
+        applyToEfx();
+    }
     private static void updateReflectionPan(Minecraft mc) {
         if (reverbEffect == -1) return;
         var earPos = mc.player.getEyePosition();
@@ -174,9 +185,7 @@ public class RayTracedReverb {
         var q = new org.joml.Quaternionf().rotateY(-yaw * (float)Math.PI / 180F)
                 .rotateX(pitch * (float)Math.PI / 180F);
         var ep = new org.joml.Vector3f((float)(earlyRefPos.x - earPos.x), (float)(earlyRefPos.y - earPos.y), (float)(earlyRefPos.z - earPos.z)).rotate(q);
-        alEffectfv(reverbEffect, AL_EAXREVERB_REFLECTIONS_PAN, new float[]{ep.x, ep.y, ep.z});
         var lp = new org.joml.Vector3f((float)(lateRefPos.x - earPos.x), (float)(lateRefPos.y - earPos.y), (float)(lateRefPos.z - earPos.z)).rotate(q);
-        alEffectfv(reverbEffect, AL_EAXREVERB_LATE_REVERB_PAN, new float[]{lp.x, lp.y, lp.z});
     }
     private static void traceRay(Minecraft mc, Vec3 earPos, Vector3d ray, int debugColor) {
         Vec3 pos = earPos;
@@ -211,13 +220,12 @@ public class RayTracedReverb {
             HIT_POINTS.add(new HitPoint(round, hit.getLocation(), journey, dist,
                     absorption, roughness, hf, hit.getDirection()));
             if (showDebugRays) {
-                debugRays.add(new Ray(
-                    new Vec3(pos.x, pos.y, pos.z),
-                    new Vec3(hit.getLocation().x, hit.getLocation().y, hit.getLocation().z),
-                    debugColor
-                ));
+                debugRays.add(new Ray(pos, hit.getLocation(), debugColor, 1f));
             }
-            if (!block.isSolid() && (block.getSoundType() == SoundType.WOOD || block.getSoundType() == SoundType.METAL)) {
+            if (block.getBlock() instanceof net.minecraft.world.level.block.FenceBlock
+                    || block.getBlock() instanceof net.minecraft.world.level.block.IronBarsBlock
+                    || block.getBlock() instanceof net.minecraft.world.level.block.WallBlock
+                    || block.getBlock() instanceof net.minecraft.world.level.block.FenceGateBlock) {
                 float bleed = 0.3f;
                 Vec3 past = hit.getLocation().add(ray.x * bleed, ray.y * bleed, ray.z * bleed);
                 journey += bleed;
@@ -225,7 +233,7 @@ public class RayTracedReverb {
                         0.3f, roughness * 0.5f, hf * 0.7f, hit.getDirection()));
                 pos = past;
                 if (showDebugRays) {
-                    debugRays.add(new Ray(hit.getLocation(), past, 0x40ffffff));
+                    debugRays.add(new Ray(hit.getLocation(), past, 0x40ffffff, 0.5f));
                 }
                 continue;
             }
@@ -238,7 +246,7 @@ public class RayTracedReverb {
                     HIT_POINTS.add(new HitPoint(round, entHit, journey + eDist, eDist,
                             0.7f, 0.6f, 0.3f, hit.getDirection()));
                     if (showDebugRays) {
-                        debugRays.add(new Ray(pos, entHit, debugColor));
+                        debugRays.add(new Ray(pos, entHit, debugColor, 1f));
                     }
                 }
             }
@@ -260,7 +268,7 @@ public class RayTracedReverb {
                 HIT_POINTS.add(new HitPoint(round + 1, refrEnd, journey, refrDist,
                         refrAbsorb, 0.8f, 0.05f, hit.getDirection()));
                 if (showDebugRays) {
-                    debugRays.add(new Ray(hit.getLocation(), refrEnd, debugColor));
+                    debugRays.add(new Ray(hit.getLocation(), refrEnd, debugColor, 0.4f));
                 }
             }
             switch (hit.getDirection()) {
@@ -295,5 +303,5 @@ public class RayTracedReverb {
         if (auxSlot != -1) { alDeleteAuxiliaryEffectSlots(auxSlot); auxSlot = -1; }
         HIT_POINTS.clear(); debugRays.clear();
     }
-    public record Ray(Vec3 from, Vec3 to, int color) {}
+    public record Ray(Vec3 from, Vec3 to, int color, float width) {}
 }

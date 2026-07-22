@@ -22,8 +22,7 @@ public class FrameLengthSlider extends DebouncedSlider {
     }
     @Override
     public void applyDebounced() {
-        int ms = MIN + (int) Math.round(value * (MAX - MIN));
-        SvcExtra.CONFIG.client.frameLengthMs = ms;
+        SvcExtra.CONFIG.client.frameLengthMs = MIN + (int) Math.round(value * (MAX - MIN));
         SvcExtra.CONFIG.save();
     }
 }

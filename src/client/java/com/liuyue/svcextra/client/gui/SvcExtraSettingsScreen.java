@@ -85,6 +85,14 @@ public class SvcExtraSettingsScreen extends Screen {
                         说话声小时自动放大, 声大时自动减小""")));
         addRenderableWidget(agcBtn);
         cy += 24;
+        var echoBtn = toggleBtn(cy, "回声消除: " + onOff(SvcExtra.CONFIG.client.echoCancel), () -> {
+            SvcExtra.CONFIG.client.echoCancel = !SvcExtra.CONFIG.client.echoCancel;
+            SvcExtra.CONFIG.save();
+            return "回声消除: " + onOff(SvcExtra.CONFIG.client.echoCancel);
+        });
+        echoBtn.setTooltip(Tooltip.create(Component.literal("§7回声消除 (AEC)§r 需要外放时开启")));
+        addRenderableWidget(echoBtn);
+        cy += 24;
         addRenderableWidget(new FrameLengthSlider(cx(), cy, 200, 20));
         cy += 24;
         addRenderableWidget(new ToleranceSlider(cx(), cy, 200, 20));
@@ -113,6 +121,8 @@ public class SvcExtraSettingsScreen extends Screen {
                         需要 OpenAL EFX 支持
                         对性能有较大影响""")));
         addRenderableWidget(reverbBtn);
+        cy += 24;
+        addRenderableWidget(new RayTraceIntervalSlider(cx(), cy, 200, 20));
         cy += 24;
         var rayBtn = toggleBtn(cy, "射线可视化: " + onOff(SvcExtra.CONFIG.client.showRayTrace), () -> {
             SvcExtra.CONFIG.client.showRayTrace = !SvcExtra.CONFIG.client.showRayTrace;

@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "McChannelMixin",
-    "ServerVoiceEventsMixin"
+    "ServerVoiceEventsMixin",
+    "VoiceFlushAccessors",
+    "VoiceFlushAccessors$ConnectionChannel"
   ],
   "injectors": {
     "defaultRequire": 1

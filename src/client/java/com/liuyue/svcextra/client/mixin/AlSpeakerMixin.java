@@ -1,6 +1,6 @@
 package com.liuyue.svcextra.client.mixin;
 import com.liuyue.svcextra.SvcExtra;
-import com.liuyue.svcextra.audio.AudioPipeline;
+import com.liuyue.svcextra.audio.AecReferenceMixer;
 import com.liuyue.svcextra.client.audio.DuckingManager;
 import com.liuyue.svcextra.client.audio.RayTracedReverb;
 import de.maxhenkel.voicechat.voice.client.speaker.ALSpeakerBase;
@@ -41,11 +41,10 @@ public class AlSpeakerMixin {
                              String whisper, float distance, CallbackInfo ci) {
         DuckingManager.markActive();
         if (SvcExtra.CONFIG.client.echoCancel) {
-            AudioPipeline.pushRemoteReference(audio, 48000);
+            AecReferenceMixer.push(audio);
         }
         applyReverbFx();
         if (SvcExtra.CONFIG.client.rayTraceAudio) {
-            AL11.alDopplerFactor(1.2f);
             AL11.alSpeedOfSound(340.0f);
             applyUnderwaterFilter(audio);
             if (pos != null) {

@@ -130,6 +130,10 @@ public class AudioPipeline {
                 startAecInternal();
             }
             if (aecScheduler != null && aecScheduler.isRunning()) {
+                short[] ref = AecReferenceMixer.poll();
+                if (ref != null) {
+                    aecScheduler.pushReference(ref, 48000);
+                }
                 aecScheduler.submitMic(audio, sampleRate);
             }
             return;

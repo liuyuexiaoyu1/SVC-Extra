@@ -26,6 +26,8 @@
   "accessWidener": "svc-extra.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "cloth-config": "*",
     "minecraft": "${minecraft_version}",
     "voicechat": ">=2.5.0"
   },

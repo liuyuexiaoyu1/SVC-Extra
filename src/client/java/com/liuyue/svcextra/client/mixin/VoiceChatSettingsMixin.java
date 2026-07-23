@@ -1,6 +1,6 @@
 package com.liuyue.svcextra.client.mixin;
 
-import com.liuyue.svcextra.client.gui.SvcExtraSettingsScreen;
+import com.liuyue.svcextra.client.gui.SvcExtraConfigScreen;
 import de.maxhenkel.voicechat.gui.VoiceChatScreenBase;
 import de.maxhenkel.voicechat.gui.VoiceChatSettingsScreen;
 import net.minecraft.client.Minecraft;
@@ -26,7 +26,7 @@ public class VoiceChatSettingsMixin extends VoiceChatScreenBase {
         boolean inGame = mc.level != null;
         int y = guiTop + (inGame ? 209 : 230);
         addRenderableWidget(Button.builder(SVC_BTN,
-                _ -> mc.gui.setScreen(new SvcExtraSettingsScreen((VoiceChatSettingsScreen) (Object) this))
+                _ -> mc.gui.setScreen(SvcExtraConfigScreen.create((VoiceChatSettingsScreen) (Object) this))
         ).bounds(guiLeft + 10, y, xSize - 20, 20).build());
     }
 }

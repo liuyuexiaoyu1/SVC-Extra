@@ -11,7 +11,6 @@ public class SvcExtraConfig {
     public Server server = new Server();
     public static class Client {
         public NoiseCancelMode noiseCancelMode = NoiseCancelMode.OFF;
-        public float aiNoiseCancelRatio = 0.5f;
         public boolean highPassFilter = true;
         public boolean autoGainControl = true;
         public boolean echoCancel = false;
@@ -22,9 +21,9 @@ public class SvcExtraConfig {
         public int frameLengthMs = 20;
         public int micSampleRate = 48000;
         public int networkTolerance = 200;
-        public String webrtcLibPath = "";
         public String nvidiaDllPath = "";
         public String nvidiaModelDir = "";
+        public int aecDelayMs = 120;
         public boolean rayTraceAudio = false;
         public boolean showRayTrace = false;
         public float absoluteLoudness = 0f;

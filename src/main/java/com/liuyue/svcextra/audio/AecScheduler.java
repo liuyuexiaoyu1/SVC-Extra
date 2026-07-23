@@ -28,6 +28,8 @@ public class AecScheduler {
 
     private int fixedDelayMs = 120;
 
+    public int getFixedDelayMs() { return fixedDelayMs; }
+
     public void setFixedDelayMs(int delayMs) {
         this.fixedDelayMs = Math.max(50, Math.min(500, delayMs));
     }
@@ -35,6 +37,7 @@ public class AecScheduler {
     public void start() {
         if (running.getAndSet(true)) return;
         try {
+            fixedDelayMs = com.liuyue.svcextra.SvcExtra.CONFIG.client.aecDelayMs;
             apm = new AudioProcessing();
             var config = new AudioProcessingConfig();
             config.noiseSuppression.enabled = false;

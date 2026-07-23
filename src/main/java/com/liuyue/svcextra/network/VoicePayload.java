@@ -1,6 +1,7 @@
 package com.liuyue.svcextra.network;
 
 import com.liuyue.svcextra.mixin.VoiceFlushAccessors;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
@@ -45,6 +46,8 @@ public record VoicePayload(byte[] data) implements CustomPacketPayload {
                     }
                 });
             }
-        } catch (Exception _) {}
+        } catch (Exception _) {
+            ServerPlayNetworking.send(player, new VoicePayload(encryptedData));
+        }
     }
 }

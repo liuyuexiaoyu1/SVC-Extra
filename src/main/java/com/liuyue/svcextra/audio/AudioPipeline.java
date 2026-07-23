@@ -12,6 +12,7 @@ public class AudioPipeline {
 
     private static WebRtcNative webrtc = null;
     private static NvidiaDenoiser nvidia = null;
+    private static AgcProcessor agc = null;
     private static boolean isInitialized = false;
     private static int sampleRate = 48000;
 
@@ -45,6 +46,13 @@ public class AudioPipeline {
             }
         }
 
+        try {
+            agc = new AgcProcessor(sampleRate);
+            LOGGER.info("AGC processor initialized");
+        } catch (Exception e) {
+            LOGGER.warn("AGC init failed: {}", e.getMessage());
+        }
+
         isInitialized = true;
         LOGGER.info("AudioPipeline initialized");
     }
@@ -72,11 +80,24 @@ public class AudioPipeline {
         }
     }
 
+    public static void updateAecDelay(int delayMs) {
+        if (aecScheduler != null && aecStarted) {
+            int clamped = Math.max(50, Math.min(500, delayMs));
+            aecScheduler.setFixedDelayMs(clamped);
+            SvcExtra.LOGGER.info("AEC delay updated to {}ms", clamped);
+        }
+    }
+
+    public static void resetAgc() {
+        if (agc != null) agc.reset();
+    }
+
     public static synchronized void shutdown() {
         stopAec();
         aecScheduler = null;
         webrtc = null;
         nvidia = null;
+        agc = null;
         isInitialized = false;
         LOGGER.info("AudioPipeline shutdown");
     }
@@ -130,6 +151,9 @@ public class AudioPipeline {
                 startAecInternal();
             }
             if (aecScheduler != null && aecScheduler.isRunning()) {
+                if (config.autoGainControl && agc != null) {
+                    agc.process(audio);
+                }
                 short[] ref = AecReferenceMixer.poll();
                 if (ref != null) {
                     aecScheduler.pushReference(ref, 48000);
@@ -143,6 +167,10 @@ public class AudioPipeline {
             if (nvidia != null) nvidia.process(audio, sampleRate);
         } else if (isWebRtcNsMode(config.noiseCancelMode)) {
             if (webrtc != null) webrtc.process(audio, sampleRate);
+        }
+
+        if (config.autoGainControl && agc != null) {
+            agc.process(audio);
         }
     }
 }

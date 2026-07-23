@@ -22,5 +22,18 @@
   "svcextra.enum.noiseCancelMode.WEBRTC_MEDIUM": "WebRTC Medium",
   "svcextra.enum.noiseCancelMode.WEBRTC_HIGH": "WebRTC High",
   "svcextra.enum.noiseCancelMode.WEBRTC_AGGRESSIVE": "WebRTC Aggressive",
-  "svcextra.enum.noiseCancelMode.NVIDIA_AI": "NVIDIA AI"
+  "svcextra.enum.noiseCancelMode.NVIDIA_AI": "NVIDIA AI",
+
+  "svcextra.tooltip.noiseCancelMode": "§7WebRTC§r: CPU-based denoising, works on all platforms\n§7NVIDIA AI§r: Uses AFX SDK or RTX Voice",
+  "svcextra.tooltip.highPassFilter": "Filters out low-frequency noise below 80Hz (wind, AC hum, etc.)",
+  "svcextra.tooltip.autoGainControl": "Automatically adjusts mic volume: amplifies quiet speech, reduces loud sounds",
+  "svcextra.tooltip.echoCancel": "Cancels echo from speakers. Enable when using external speakers.\nAEC reference is taken from all outgoing audio.",
+  "svcextra.tooltip.aecDelayMs": "Echo path delay in milliseconds.\n50ms = short-range, 500ms = long-range.\nAdjust if echo cancellation isn't working properly.",
+  "svcextra.tooltip.rayTraceAudio": "Simulates acoustic reflections using ray tracing.\nRequires OpenAL EFX support.\nHigher CPU usage.",
+  "svcextra.tooltip.rayTraceIntervalMs": "Ray recalculation interval.\n5ms = most responsive (high CPU)\n3000ms = most efficient (slower response)",
+  "svcextra.tooltip.showRayTrace": "Visualizes sound reflection rays in-game (debug)",
+  "svcextra.tooltip.absoluteLoudness": "Simulates louder sound when closer to source.\n0% = constant volume\n100% = realistic distance-based attenuation",
+  "svcextra.tooltip.duckingLevel": "Reduces game volume when someone speaks.\n0% = off\n100% = completely mute game audio during speech",
+  "svcextra.tooltip.frameLengthMs": "Audio frame size. Lower = lower latency but higher bandwidth.\nDefault: 20ms",
+  "svcextra.tooltip.networkTolerance": "Network jitter buffer in milliseconds.\nHigher = more stable but more delay.\nDefault: 200ms"
 }

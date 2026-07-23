@@ -22,5 +22,18 @@
   "svcextra.enum.noiseCancelMode.WEBRTC_MEDIUM": "WebRTC 中",
   "svcextra.enum.noiseCancelMode.WEBRTC_HIGH": "WebRTC 强",
   "svcextra.enum.noiseCancelMode.WEBRTC_AGGRESSIVE": "WebRTC 激进",
-  "svcextra.enum.noiseCancelMode.NVIDIA_AI": "NVIDIA AI"
+  "svcextra.enum.noiseCancelMode.NVIDIA_AI": "NVIDIA AI",
+
+  "svcextra.tooltip.noiseCancelMode": "§7WebRTC§r: CPU 通用降噪, 全平台可用\n§7NVIDIA AI§r: 调用 AFX SDK 或 RTX Voice",
+  "svcextra.tooltip.highPassFilter": "过滤 80Hz 以下低频噪音 (风声、空调声等)",
+  "svcextra.tooltip.autoGainControl": "自动调整麦克风音量: 说话声小自动放大, 声大自动减小",
+  "svcextra.tooltip.echoCancel": "消除扬声器回声。使用外放时开启。\nAEC 参考信号来自所有播放的音频。",
+  "svcextra.tooltip.aecDelayMs": "回声路径延迟(毫秒)。\n50ms = 短距离, 500ms = 长距离。\n回声消除效果不佳时调整此值。",
+  "svcextra.tooltip.rayTraceAudio": "使用射线追踪模拟声音反射。\n需要 OpenAL EFX 支持。\n对性能有较大影响。",
+  "svcextra.tooltip.rayTraceIntervalMs": "射线重算间隔。\n5ms = 最灵敏 (高CPU)\n3000ms = 最省 (响应慢)",
+  "svcextra.tooltip.showRayTrace": "在游戏中显示声音反射射线 (调试用)",
+  "svcextra.tooltip.absoluteLoudness": "模拟靠近声源时声音更大的效果。\n0% = 恒定音量\n100% = 基于距离的真实衰减",
+  "svcextra.tooltip.duckingLevel": "有人说话时自动降低游戏音量。\n0% = 关闭\n100% = 说话时完全静音游戏",
+  "svcextra.tooltip.frameLengthMs": "音频帧大小。越小延迟越低但带宽越高。\n默认值: 20ms",
+  "svcextra.tooltip.networkTolerance": "网络抖动缓冲 (毫秒)。\n越高越稳定但延迟越大。\n默认值: 200ms"
 }

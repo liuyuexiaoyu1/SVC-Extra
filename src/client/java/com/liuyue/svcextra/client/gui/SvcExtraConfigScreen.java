@@ -25,6 +25,7 @@ public class SvcExtraConfigScreen {
                 config.client.noiseCancelMode
         ).setDefaultValue(SvcExtraConfig.NoiseCancelMode.OFF)
          .setEnumNameProvider(v -> Component.translatable("svcextra.enum.noiseCancelMode." + v.name()))
+         .setTooltip(Component.translatable("svcextra.tooltip.noiseCancelMode"))
          .setSaveConsumer(v -> config.client.noiseCancelMode = v)
          .build());
 
@@ -32,6 +33,7 @@ public class SvcExtraConfigScreen {
                 Component.translatable("svcextra.option.highPassFilter"),
                 config.client.highPassFilter
         ).setDefaultValue(true)
+         .setTooltip(Component.translatable("svcextra.tooltip.highPassFilter"))
          .setSaveConsumer(v -> config.client.highPassFilter = v)
          .build());
 
@@ -39,6 +41,7 @@ public class SvcExtraConfigScreen {
                 Component.translatable("svcextra.option.autoGainControl"),
                 config.client.autoGainControl
         ).setDefaultValue(true)
+         .setTooltip(Component.translatable("svcextra.tooltip.autoGainControl"))
          .setSaveConsumer(v -> {
              config.client.autoGainControl = v;
              AudioPipeline.resetAgc();
@@ -49,6 +52,7 @@ public class SvcExtraConfigScreen {
                 Component.translatable("svcextra.option.echoCancel"),
                 config.client.echoCancel
         ).setDefaultValue(false)
+         .setTooltip(Component.translatable("svcextra.tooltip.echoCancel"))
          .setSaveConsumer(v -> {
              config.client.echoCancel = v;
              if (v) AudioPipeline.startAec();
@@ -61,6 +65,8 @@ public class SvcExtraConfigScreen {
                 config.client.aecDelayMs,
                 50, 500
         ).setDefaultValue(120)
+         .setTextGetter(v -> Component.literal(v + "ms"))
+         .setTooltip(Component.translatable("svcextra.tooltip.aecDelayMs"))
          .setSaveConsumer(v -> {
              config.client.aecDelayMs = v;
              AudioPipeline.updateAecDelay(v);
@@ -73,6 +79,7 @@ public class SvcExtraConfigScreen {
                 Component.translatable("svcextra.option.rayTraceAudio"),
                 config.client.rayTraceAudio
         ).setDefaultValue(false)
+         .setTooltip(Component.translatable("svcextra.tooltip.rayTraceAudio"))
          .setSaveConsumer(v -> config.client.rayTraceAudio = v)
          .build());
 
@@ -81,6 +88,8 @@ public class SvcExtraConfigScreen {
                 config.client.rayTraceIntervalMs,
                 5, 3000
         ).setDefaultValue(500)
+         .setTextGetter(v -> Component.literal(v + "ms"))
+         .setTooltip(Component.translatable("svcextra.tooltip.rayTraceIntervalMs"))
          .setSaveConsumer(v -> config.client.rayTraceIntervalMs = v)
          .build());
 
@@ -88,6 +97,7 @@ public class SvcExtraConfigScreen {
                 Component.translatable("svcextra.option.showRayTrace"),
                 config.client.showRayTrace
         ).setDefaultValue(false)
+         .setTooltip(Component.translatable("svcextra.tooltip.showRayTrace"))
          .setSaveConsumer(v -> config.client.showRayTrace = v)
          .build());
 
@@ -96,6 +106,8 @@ public class SvcExtraConfigScreen {
                 Math.round(config.client.absoluteLoudness * 100),
                 0, 100
         ).setDefaultValue(0)
+         .setTextGetter(v -> Component.literal(v + "%"))
+         .setTooltip(Component.translatable("svcextra.tooltip.absoluteLoudness"))
          .setSaveConsumer(v -> config.client.absoluteLoudness = v / 100f)
          .build());
 
@@ -106,6 +118,8 @@ public class SvcExtraConfigScreen {
                 Math.round(config.client.duckingLevel * 100),
                 0, 100
         ).setDefaultValue(30)
+         .setTextGetter(v -> Component.literal(v + "%"))
+         .setTooltip(Component.translatable("svcextra.tooltip.duckingLevel"))
          .setSaveConsumer(v -> config.client.duckingLevel = v / 100f)
          .build());
 
@@ -114,6 +128,8 @@ public class SvcExtraConfigScreen {
                 config.client.frameLengthMs,
                 10, 50
         ).setDefaultValue(20)
+         .setTextGetter(v -> Component.literal(v + "ms"))
+         .setTooltip(Component.translatable("svcextra.tooltip.frameLengthMs"))
          .setSaveConsumer(v -> config.client.frameLengthMs = v)
          .build());
 
@@ -122,6 +138,8 @@ public class SvcExtraConfigScreen {
                 config.client.networkTolerance,
                 100, 500
         ).setDefaultValue(200)
+         .setTextGetter(v -> Component.literal(v + "ms"))
+         .setTooltip(Component.translatable("svcextra.tooltip.networkTolerance"))
          .setSaveConsumer(v -> config.client.networkTolerance = v)
          .build());
 

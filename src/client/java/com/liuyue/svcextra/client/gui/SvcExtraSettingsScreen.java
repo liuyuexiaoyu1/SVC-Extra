@@ -37,7 +37,7 @@ public class SvcExtraSettingsScreen extends Screen {
     protected void init() {
         super.init();
         var modes = getModes();
-        int cy = height / 2 - 80;
+        int cy = Math.max(10, (height - 320) / 2);
         boolean ncAvail = modes.size() > 1;
         var ncBtn = toggleBtn(cy, "降噪: " + cn(SvcExtra.CONFIG.client.noiseCancelMode), () -> {
             int idx = modes.indexOf(SvcExtra.CONFIG.client.noiseCancelMode);
@@ -87,6 +87,11 @@ public class SvcExtraSettingsScreen extends Screen {
         cy += 24;
         var echoBtn = toggleBtn(cy, "回声消除: " + onOff(SvcExtra.CONFIG.client.echoCancel), () -> {
             SvcExtra.CONFIG.client.echoCancel = !SvcExtra.CONFIG.client.echoCancel;
+            if (SvcExtra.CONFIG.client.echoCancel) {
+                AudioPipeline.startAec();
+            } else {
+                AudioPipeline.stopAec();
+            }
             SvcExtra.CONFIG.save();
             return "回声消除: " + onOff(SvcExtra.CONFIG.client.echoCancel);
         });

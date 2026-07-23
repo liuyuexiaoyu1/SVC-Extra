@@ -1235,12 +1235,12 @@ public class NvAudioEffects extends CShared {
         }
         return Holder.NVAFX_PARAM_ENABLE_VAD;
     }
-    public static MemorySegment NVAFX_PARAM_MODEL_PATH() {
+    public static MemorySegment NVAFX_PARAM_MODEL_PATH(boolean gtx) {
         class Holder {
-            static final MemorySegment NVAFX_PARAM_MODEL_PATH
-                    = NvAudioEffects.LIBRARY_ARENA.allocateFrom("model_path");
+            static final MemorySegment RTX_KEY = NvAudioEffects.LIBRARY_ARENA.allocateFrom("model_path");
+            static final MemorySegment GTX_KEY = NvAudioEffects.LIBRARY_ARENA.allocateFrom("denoiser_model_path");
         }
-        return Holder.NVAFX_PARAM_MODEL_PATH;
+        return gtx ? Holder.GTX_KEY : Holder.RTX_KEY;
     }
     public static MemorySegment NVAFX_PARAM_INPUT_SAMPLE_RATE() {
         class Holder {

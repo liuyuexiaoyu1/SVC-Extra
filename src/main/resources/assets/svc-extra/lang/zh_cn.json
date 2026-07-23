@@ -1,0 +1,26 @@
+{
+  "svcextra.config.title": "SVC Extra 设置",
+  "svcextra.category.general": "基本设置",
+  "svcextra.category.reverb": "混响",
+  "svcextra.category.advanced": "高级",
+
+  "svcextra.option.noiseCancelMode": "降噪模式",
+  "svcextra.option.highPassFilter": "高通滤波",
+  "svcextra.option.autoGainControl": "自动增益",
+  "svcextra.option.echoCancel": "回声消除",
+  "svcextra.option.aecDelayMs": "AEC 延迟 (毫秒)",
+  "svcextra.option.rayTraceAudio": "路径混响",
+  "svcextra.option.rayTraceIntervalMs": "射线间隔 (毫秒)",
+  "svcextra.option.showRayTrace": "射线可视化",
+  "svcextra.option.absoluteLoudness": "绝对响度",
+  "svcextra.option.duckingLevel": "语音闪避",
+  "svcextra.option.frameLengthMs": "帧长度 (毫秒)",
+  "svcextra.option.networkTolerance": "网络容差 (毫秒)",
+
+  "svcextra.enum.noiseCancelMode.OFF": "关",
+  "svcextra.enum.noiseCancelMode.WEBRTC_LOW": "WebRTC 弱",
+  "svcextra.enum.noiseCancelMode.WEBRTC_MEDIUM": "WebRTC 中",
+  "svcextra.enum.noiseCancelMode.WEBRTC_HIGH": "WebRTC 强",
+  "svcextra.enum.noiseCancelMode.WEBRTC_AGGRESSIVE": "WebRTC 激进",
+  "svcextra.enum.noiseCancelMode.NVIDIA_AI": "NVIDIA AI"
+}

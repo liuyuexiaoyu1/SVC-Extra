@@ -1,0 +1,26 @@
+{
+  "svcextra.config.title": "SVC Extra Settings",
+  "svcextra.category.general": "General",
+  "svcextra.category.reverb": "Reverb",
+  "svcextra.category.advanced": "Advanced",
+
+  "svcextra.option.noiseCancelMode": "Noise Cancel",
+  "svcextra.option.highPassFilter": "High-Pass Filter",
+  "svcextra.option.autoGainControl": "Auto Gain Control",
+  "svcextra.option.echoCancel": "Echo Cancellation",
+  "svcextra.option.aecDelayMs": "AEC Delay (ms)",
+  "svcextra.option.rayTraceAudio": "Path-Traced Reverb",
+  "svcextra.option.rayTraceIntervalMs": "Ray Interval (ms)",
+  "svcextra.option.showRayTrace": "Show Debug Rays",
+  "svcextra.option.absoluteLoudness": "Absolute Loudness",
+  "svcextra.option.duckingLevel": "Voice Ducking",
+  "svcextra.option.frameLengthMs": "Frame Length (ms)",
+  "svcextra.option.networkTolerance": "Network Tolerance (ms)",
+
+  "svcextra.enum.noiseCancelMode.OFF": "Off",
+  "svcextra.enum.noiseCancelMode.WEBRTC_LOW": "WebRTC Low",
+  "svcextra.enum.noiseCancelMode.WEBRTC_MEDIUM": "WebRTC Medium",
+  "svcextra.enum.noiseCancelMode.WEBRTC_HIGH": "WebRTC High",
+  "svcextra.enum.noiseCancelMode.WEBRTC_AGGRESSIVE": "WebRTC Aggressive",
+  "svcextra.enum.noiseCancelMode.NVIDIA_AI": "NVIDIA AI"
+}
